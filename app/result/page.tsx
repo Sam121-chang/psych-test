@@ -62,7 +62,7 @@ export default function ResultPage() {
         </div>
       )}
 
-      {/* 均衡者 */}
+      {/* 均衡型 */}
       {result.cores.length === 0 && result.secondary.length === 0 && (
         <div className="p-4 bg-purple-50 rounded-lg mb-6">
           <h2 className="text-xl font-bold mb-2">均衡型人格</h2>
@@ -72,31 +72,35 @@ export default function ResultPage() {
         </div>
       )}
 
-      {/* 图表（横向柱状图） */}
+      {/* 横条图 */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
         <h2 className="text-xl font-bold mb-4">各维度得分</h2>
-        {Object.entries(result.dimensionScores).map(([dim, score]) => (
-          <div key={dim} className="mb-3">
-            <p className="font-medium mb-1">{dim}</p>
-            <div className="w-full bg-gray-200 h-3 rounded">
-              <div
-                className="bg-blue-500 h-3 rounded"
-                style={{ width: `${(score / 45) * 100}%` }}
-              ></div>
+        {Object.entries(result.dimensionScores).map(([dim, rawScore]) => {
+          const score = rawScore as number; // ← ★★ 修复 TS 报错（unknown → number）
+
+          return (
+            <div key={dim} className="mb-3">
+              <p className="font-medium mb-1">{dim}</p>
+              <div className="w-full bg-gray-200 h-3 rounded">
+                <div
+                  className="bg-blue-500 h-3 rounded"
+                  style={{ width: `${(score / 45) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">得分：{score}</p>
             </div>
-            <p className="text-sm text-gray-500 mt-1">得分：{score}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* 各维度详细解读 */}
+      {/* 详细解读 */}
       <div>
         <h2 className="text-xl font-bold mb-4">详细解读</h2>
 
         {Object.keys(dimensionTexts).map((key) => {
           const dim = key as keyof typeof dimensionTexts;
           const info = dimensionTexts[dim];
-          const score = result.dimensionScores[dim];
+          const score = result.dimensionScores[dim] as number;
 
           return (
             <div key={dim} className="p-4 bg-gray-50 rounded-lg mb-6">
@@ -138,7 +142,7 @@ export default function ResultPage() {
       </div>
 
       <p className="text-gray-500 text-sm mt-10">
-        * 免责声明：本测试仅用于自我探索，不构成任何专业心理诊断。请根据自身情况理性解读。
+        * 免责声明：本测试仅用于自我探索，不构成任何专业心理诊断。
       </p>
     </div>
   );
