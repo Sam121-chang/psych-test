@@ -1,43 +1,39 @@
-import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { NextResponse } from "next/server";
+import crypto from "crypto";
 
 export async function POST() {
   const appid = process.env.NEXT_PUBLIC_PAY_APPID!;
-  const appsecret = process.env.PAY_SECRET!;
-  const apiUrl = process.env.PAY_API!;
+  const secret = process.env.PAY_SECRET!;
+  const api = process.env.PAY_API!;
 
-  // 订单号（随机）
-  const out_trade_no = "order_" + Date.now();
-  
-  // 回调地址（记得换成你自己的！）
-  const notify_url = "https://psych-test-ox1s.vercel.app/api/notify";
+  const trade_order_id = "order_" + Date.now();
 
   const params: Record<string, string> = {
+    version: "1.1",
     appid,
-    type: "wechat",   // 个人微信 H5 必须用 wechat
-    total_fee: "1",   // 支付金额（单位：元）
-    out_trade_no,
-    notify_url,
-    redirect_url: "https://psych-test-ox1s.vercel.app/result", 
+    trade_order_id,
+    payment: "wechat", // 扫码支付用这一项
+    type: "NATIVE",    // 可不写，但写了更明确
+    amount: "0.99",
+    title: "精神需求结构测试",
+    notify_url: "https://psych-test-ox1s.vercel.app/api/notify",
+    return_url: "https://psych-test-ox1s.vercel.app/result",
     nonce_str: Math.random().toString(36).substring(2),
-    timestamp: Math.floor(Date.now() / 1000).toString()
   };
 
-  // 签名生成：ASCII排序 → 拼接 → 加 secret → md5
-  const signString =
-    Object.keys(params)
-      .sort()
-      .map(key => `${key}=${params[key]}`)
-      .join("&") + `&key=${appsecret}`;
+  // 生成签名
+  const signStr = Object.keys(params)
+    .sort()
+    .map((key) => `${key}=${params[key]}`)
+    .join("&") + `&key=${secret}`;
 
-  const sign = crypto.createHash("md5").update(signString).digest("hex").toUpperCase();
-  params["sign"] = sign;
+  params["sign"] = crypto.createHash("md5").update(signStr).digest("hex");
 
-  // 发起请求
-  const res = await fetch(apiUrl, {
+  // 发起请求到迅虎
+  const res = await fetch(api, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(params)
+    body: JSON.stringify(params),
   });
 
   const data = await res.json();
