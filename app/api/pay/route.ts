@@ -13,23 +13,25 @@ export async function POST() {
   const params: Record<string, string> = {
     version: "11.1",
     appid,
-    type: "wechat",
-    payment: "wechat",
-    type: "NATIVE",
-    amount: "0.99",
+    payment: "wechat",         // 扫码支付用这个字段
+    type: "NATIVE",            // ⚠ 正确写法，不能重复！
+    amount: "1",
     title: "精神需求结构测试",
     notify_url: "https://psych-test-ox1s.vercel.app/api/notify",
     return_url: "https://psych-test-ox1s.vercel.app/result",
     nonce_str: Math.random().toString(36).substring(2),
   };
 
-  const signStr = Object.keys(params)
-    .sort()
-    .map((key) => `${key}=${params[key]}`)
-    .join("&") + `&key=${secret}`;
+  // 生成签名
+  const signStr =
+    Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${params[key]}`)
+      .join("&") + `&key=${secret}`;
 
   params["sign"] = crypto.createHash("md5").update(signStr).digest("hex");
 
+  // 发送请求
   const res = await fetch(api, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
