@@ -1,25 +1,54 @@
-import Link from "next/link";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+
+export default function PayPage() {
+  const [loading, setLoading] = useState(false);
+
+  const createOrder = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/pay", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      console.log("支付接口返回：", data);
+
+      if (data?.code === 1 && data?.pay_url) {
+        // 跳转到支付页
+        window.location.href = data.pay_url;
+      } else {
+        alert("创建支付失败：" + (data?.msg || "未知错误"));
+      }
+    } catch (err) {
+      console.error("调用支付接口失败：", err);
+      alert("网络错误");
+    }
+
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">精神需求结构测试</h1>
-      <p className="text-gray-600 text-center mb-6">
-        解锁完整测试＋深度分析结果
-        <br />
-        仅需 <span className="text-blue-600 font-bold">0.99 元</span>
-      </p>
+    <div style={{ padding: 40, fontSize: 24 }}>
+      <div>支付页面</div>
+      <div style={{ marginTop: 10 }}>支付金额：1元</div>
 
-      <Link
-        href="/pay"
-        className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition"
+      <button
+        onClick={createOrder}
+        disabled={loading}
+        style={{
+          marginTop: 40,
+          padding: "18px 32px",
+          backgroundColor: "blue",
+          color: "#fff",
+          fontSize: 22,
+          borderRadius: 12,
+        }}
       >
-        支付 0.99 元（开始测试）
-      </Link>
-
-      <p className="text-xs text-gray-400 mt-10">
-        本测试仅用于心理结构参考，不构成诊断依据。
-      </p>
+        {loading ? "创建订单中…" : "立即支付"}
+      </button>
     </div>
   );
 }
