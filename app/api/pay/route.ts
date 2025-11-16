@@ -15,7 +15,7 @@ export async function POST() {
     appid,
     payment: "wechat",         // 扫码支付用这个字段
     type: "NATIVE",            // ⚠ 正确写法，不能重复！
-    amount: "1",
+    amount: "0.99",
     title: "精神需求结构测试",
     notify_url: "https://psych-test-ox1s.vercel.app/api/notify",
     return_url: "https://psych-test-ox1s.vercel.app/result",
