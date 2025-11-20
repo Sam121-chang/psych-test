@@ -2,52 +2,59 @@
 
 import { useState } from "react";
 
-export default function PayPage() {
+export default function HomePage() {
   const [loading, setLoading] = useState(false);
 
-  const createOrder = async () => {
+  const handleClick = async () => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/pay", {
-        method: "POST",
-      });
+      // ① 记录点击
+      await fetch("/api/click", { method: "POST" });
 
-      const data = await res.json();
-      console.log("支付接口返回：", data);
+      // ② 弹一个提示（可以按需删除）
+      alert("点击已记录，正在进入测评...");
 
-      if (data?.code === 1 && data?.pay_url) {
-        // 跳转到支付页
-        window.location.href = data.pay_url;
-      } else {
-        alert("创建支付失败：" + (data?.msg || "未知错误"));
-      }
+      // ③ 跳转到真正的测试页
+      window.location.href = "/test";
+
     } catch (err) {
-      console.error("调用支付接口失败：", err);
-      alert("网络错误");
+      console.error("点击统计失败:", err);
+      alert("网络异常，请稍后重试");
     }
 
     setLoading(false);
   };
 
   return (
-    <div style={{ padding: 40, fontSize: 24 }}>
-      <div>支付页面</div>
-      <div style={{ marginTop: 10 }}>支付金额：1元</div>
+    <div
+      style={{
+        padding: 40,
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: 36, fontWeight: 700 }}>心理需求结构测试</h1>
+
+      <p style={{ fontSize: 20, marginTop: 10, color: "#555" }}>
+        基于 9 维度结构模型 · 约 3-5 分钟 · 高可靠性测评
+      </p>
 
       <button
-        onClick={createOrder}
+        onClick={handleClick}
         disabled={loading}
         style={{
-          marginTop: 40,
-          padding: "18px 32px",
-          backgroundColor: "blue",
+          marginTop: 60,
+          padding: "18px 40px",
+          backgroundColor: "#1a73e8",
+          border: "none",
           color: "#fff",
-          fontSize: 22,
+          fontSize: 24,
           borderRadius: 12,
+          cursor: "pointer",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
         }}
       >
-        {loading ? "创建订单中…" : "立即支付"}
+        {loading ? "进入中..." : "开始测试（免费）"}
       </button>
     </div>
   );
